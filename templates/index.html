@@ -1,0 +1,131 @@
+<head>
+  <title>Latent Semantic Analysis (LSA) Search Engine</title>
+  <link
+    rel="stylesheet"
+    href="{{ url_for('static', filename='pico.min.css') }}"
+  />
+  <style>
+    #resultContainer {
+      display: none;
+    }
+
+    h1,
+    h3 {
+      text-align: center;
+    }
+  </style>
+</head>
+
+<body>
+  <main class="container">
+    <section>
+      <h1>Latent Semantic Analysis (LSA) Search Engine</h1>
+      <form id="searchForm" role="search">
+        <input
+          type="search"
+          name="content"
+          placeholder="Enter search query"
+          required
+        />
+        <input type="submit" value="Search" />
+      </form>
+    </section>
+    <div id="resultContainer">
+      <h3>Results</h3>
+      <section>
+        <div id="resultContents">
+          <article>
+            <header></header>
+            <footer></footer>
+          </article>
+          <article>
+            <header></header>
+            <footer></footer>
+          </article>
+          <article>
+            <header></header>
+            <footer></footer>
+          </article>
+          <article>
+            <header></header>
+            <footer></footer>
+          </article>
+          <article>
+            <header></header>
+            <footer></footer>
+          </article>
+        </div>
+      </section>
+      <section>
+        <article>
+          <canvas id="resultSimilarityChart"></canvas>
+        </article>
+      </section>
+    </div>
+  </main>
+  <script src="{{ url_for('static', filename='chart.js') }}"></script>
+  <script>
+    const ctx = document.getElementById("resultSimilarityChart");
+    const chart = new Chart(ctx, {
+      type: "bar",
+      data: {
+        labels: [],
+        datasets: [
+          {
+            label: "Cosine Similarity",
+            data: [],
+            backgroundColor: [
+              "rgba(255, 99, 132, 0.2)",
+              "rgba(255, 159, 64, 0.2)",
+              "rgba(255, 205, 86, 0.2)",
+              "rgba(75, 192, 192, 0.2)",
+              "rgba(54, 162, 235, 0.2)",
+            ],
+            borderColor: [
+              "rgb(255, 99, 132)",
+              "rgb(255, 159, 64)",
+              "rgb(255, 205, 86)",
+              "rgb(75, 192, 192)",
+              "rgb(54, 162, 235)",
+            ],
+            borderWidth: 1,
+          },
+        ],
+      },
+      options: {
+        maintainAspectRatio: false,
+      },
+    });
+
+    const form = document.getElementById("searchForm");
+    const resultContainer = document.getElementById("resultContainer");
+    const resultContents = document.getElementById("resultContents");
+    form.addEventListener("submit", function (event) {
+      event.preventDefault();
+      const formData = new FormData(form);
+      fetch("/", {
+        method: "POST",
+        body: formData,
+      })
+        .then((response) => response.json())
+        .then((data) => {
+          resultContainer.style.display = "block";
+          chart.data.labels = [];
+          chart.data.datasets[0].data = [];
+          resultContents.childNodes.forEach((element) => {
+            if (element.nodeType === Node.ELEMENT_NODE) {
+              const newElementData = data.shift();
+              chart.data.labels.push(`Doc ${newElementData.id}`);
+              chart.data.datasets[0].data.push(
+                newElementData.cosine_similarity
+              );
+              element.childNodes[1].textContent = `Document ${newElementData.id}`;
+              element.childNodes[2].textContent = `${newElementData.content}`;
+              element.childNodes[3].textContent = `Similarity: ${newElementData.cosine_similarity}`;
+            }
+          });
+          chart.update();
+        });
+    });
+  </script>
+</body>
