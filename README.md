@@ -1,6 +1,6 @@
 # Latent Semantic Analysis (LSA) Search Engine Webpage
 
-[Demo Video]()
+[Demo Video](https://youtu.be/8AAHulU8wy8)
 
 To run this application:
 

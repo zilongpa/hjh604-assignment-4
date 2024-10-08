@@ -11,8 +11,7 @@ documents = newsgroups.data
 vectorizer = TfidfVectorizer(stop_words='english')
 X = vectorizer.fit_transform(documents)
 
-# svd = TruncatedSVD(n_components=128)
-svd = TruncatedSVD(n_components=2048)
+svd = TruncatedSVD(n_components=256)
 X_reduced = svd.fit_transform(X)
 
 app = Flask(__name__)
@@ -27,7 +26,7 @@ def main():
         target_vec = vectorizer.transform([content])
         target_vec_reduced = svd.transform(target_vec)
         similarities = cosine_similarity(target_vec_reduced, X_reduced)
-        top_5 = np.argsort(similarities[0])[-5:]
+        top_5 = np.argsort(similarities[0])[-5:][::-1]
 
         return [{
             "id": int(i),
